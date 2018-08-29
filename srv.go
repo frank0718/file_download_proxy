@@ -3,18 +3,19 @@ package main
 import (
 	"encoding/base64"
 	"fmt"
-	"github.com/hanjm/log"
 	"net/http"
 	_ "net/http/pprof"
+
+	"github.com/hanjm/log"
 )
 
-func HTTPServer(tm *TasksManager, port int, basicAuth string) {
+func HTTPServer(tm *TasksManager, host string, port int, basicAuth string) {
 	http.Handle("/download/", http.StripPrefix("/download", http.FileServer(http.Dir(tm.downloadDir))))
 	http.Handle("/file_download_proxy/ws", http.HandlerFunc(tm.WebSocketHandler))
 	http.Handle("/file_download_proxy/task", http.HandlerFunc(tm.TaskHandler))
 	http.HandleFunc("/favicon.ico", HandleFile("favicon.ico"))
 	http.Handle("/file_download_proxy/", HandleFile("index.html"))
-	listenAddr := fmt.Sprintf(":%d", port)
+	listenAddr := host + fmt.Sprintf(":%d", port)
 	log.Infof("service start at %s", listenAddr)
 	log.Fatal(http.ListenAndServe(listenAddr, Auth(http.DefaultServeMux, basicAuth)))
 }

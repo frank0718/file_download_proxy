@@ -2,15 +2,17 @@ package main
 
 import (
 	"flag"
-	"github.com/hanjm/log"
 	"os"
 	"os/signal"
 	"syscall"
 	"time"
+
+	"github.com/hanjm/log"
 )
 
 func main() {
 	var (
+		host                = flag.String("host", "127.0.0.1", "service listen host")
 		port                = flag.Int("port", 8080, "service listen port")
 		downloadDir         = flag.String("dir", "download", "download dir")
 		fileSizeLimitGB     = flag.Int64("limit", 5, "the limit size of download file, unit is 'GB'")
@@ -30,7 +32,7 @@ func main() {
 	}
 	tasksManager.ListFiles()
 	// http server
-	go HTTPServer(tasksManager, *port, *basicAuth)
+	go HTTPServer(tasksManager, *host, *port, *basicAuth)
 	// aria2 worker
 	pid := Aria2Worker(*downloadDir)
 	log.Infof("aria2c pid is %d", pid)
